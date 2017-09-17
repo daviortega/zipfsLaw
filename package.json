@@ -1,0 +1,34 @@
+{
+  "name": "zipfslaw",
+  "version": "1.0.0",
+  "description": "Simulation of random and non-random word selection to exemplify zipfs law - Paretto distribution.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --open",
+    "build": "webpack --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daviortega/zipfsLaw.git"
+  },
+  "keywords": [
+    "zipfs"
+  ],
+  "author": "Davi Ortega",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/daviortega/zipfsLaw/issues"
+  },
+  "homepage": "https://github.com/daviortega/zipfsLaw#readme",
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "html-webpack-plugin": "^2.30.1",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.8.2"
+  },
+  "dependencies": {
+    "d3": "^4.10.2"
+  }
+}
