@@ -10,6 +10,12 @@ module.exports = {
     devServer: {
         contentBase: './dist'
     },
+    externals: {
+        fs: '{}',
+        tls: '{}',
+        net: '{}',
+        console: '{}'
+    },
     module: {
         rules: [
             {
