@@ -3,8 +3,11 @@
 import '../css/style.css'
 let d3 = require('d3')
 
-let numberOfRounds = 10,
-	probabilityIncrease = 100000,
+let spaceBetweenWords = 50,
+    numberOfRounds = 100,
+    maxRank = 20,
+    sizeOfCircle = 5,
+	probabilityIncrease = 370000,
     dictionaryUrl = 'https://raw.githubusercontent.com/daviortega/zipfsLaw/master/data/words.txt'
 
 let wordSim = require('./wordSim'),
@@ -41,7 +44,40 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
         .attr('x2', width - 200)
         .attr('y2', '400px')
         .attr('stroke', 'white')
-        .attr('stroke-width', 1)
+        .attr('stroke-width', 0.5)
+
+    let parettoDist = function(rank) {
+        let maxRef = 200,
+            minRef = 400,
+            results = [maxRef]
+        
+        for (let i = 1; i < rank; i++) {
+            results.push(results[i-1] + (minRef - results[i-1])/2)
+        }
+        return results
+    }
+        
+        //[200, 300, 350, 375, 387.5, 393.75, 396.875, 398.4375, 399.21875, 399.609375, 399.8046875, 399.9023438, 399.9511719, 399.9755859, 399.987793, 399.9938965, 399.9969482]
+
+    let paretto = parettoDist(maxRank)
+
+    d3.select('svg').selectAll('.paretto').data(paretto).enter()
+        .append('line')
+        .attr('class', 'paretto')
+        .attr('x1', function(d,i) {
+            return 100 + i * spaceBetweenWords
+        })
+        .attr('y1', function(d) {
+            return d
+        })
+        .attr('x2', function(d, i) {
+            return 120 + i * spaceBetweenWords
+        })
+        .attr('y2', function(d) {
+            return d
+        })
+        .attr('stroke', 'white')
+        .attr('stroke-width', '1')
 
     let bars = d3.select('svg').selectAll('circle')
 
@@ -59,7 +95,7 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
             console.log('start')
             controlBar.select('.status')
                 .text('working...')
-            let index = Simulation.pickWords(10)
+            let index = Simulation.pickWords(numberOfRounds)
             //console.log(index + ' -- ' + Simulation.tally.words[index[index.length - 1]] + ' -- ' + JSON.stringify(Simulation.tally.scores[index[index.length - 1]]))
 
             updatePlot()
@@ -83,43 +119,34 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
 
         let maxCounts = Math.max(...scores)
 
+        console.log(maxCounts)
         let y = d3.scaleLinear()
             .domain([0, maxCounts])
             .range([400, 200]);
 
-        console.log(JSON.stringify(Simulation.tally.scores.slice(0,10)))
+        console.log(JSON.stringify(Simulation.tally.scores.slice(0,maxRank)))
         let circleSelect = d3.select('svg').selectAll('circle')
-            .data(Simulation.tally.scores.slice(0,10))
+            .data(Simulation.tally.scores.slice(0,maxRank), function(d) {return d.word})
         
         let textSelect = d3.select('svg').selectAll('text')
-            .data(Simulation.tally.scores.slice(0,10))
+            .data(Simulation.tally.scores.slice(0,maxRank), function(d) {return d.word})
 
         let t = d3.transition().duration(1500)
-
-        circleSelect.transition(t)
-            .attr('cx', function(d, i) {
-                return 110 + i * 100
-            })
-            .attr('cy', function(d, i) {
-                return y(d.counts)
-            })
-
-        textSelect.transition(t)
-            .attr('x', function(d, i) {
-                return 110 + i * 100
-            })
         
+        d3.selectAll('text').transition(t)
+            .attr('fill', 'white')
+
         circleSelect.enter()
             .append('circle')
             .attr('class', 'item')
             .attr('cx', function(d, i) {
-                return 110 + i * 100
+                return 110 + i * spaceBetweenWords
             })
             .attr('cy', function(d, i) {
                 return y(d.counts)
             })
-            .attr('r', 10)
-            .attr('fill', 'red')
+            .attr('r', sizeOfCircle)
+            .attr('fill', 'white')
         
         circleSelect.exit().remove()
         
@@ -127,15 +154,42 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
             .append('text')
             .attr('class', 'item')
             .attr('x', function(d, i) {
-                return 110 + i * 100
+                return 110 + i * spaceBetweenWords
             })
-            .attr('y', 410)
-            //.attr('transform', 'rotate(90)')
-            .attr('text-anchor', 'end')
-            .attr('fill', 'white')
+            .attr('y', 420)
+            .attr('transform', function(d, i) {
+                return 'rotate(45, ' + (110 + i * spaceBetweenWords) + ', 420)'
+            })
+            //.attr('text-anchor', 'end')
+            .attr('fill', 'red')
             .text(function(d) {
                 return d.word
             })
         textSelect.exit().remove()
+
+        d3.selectAll('circle').sort(function(a, b) {
+            return b.counts - a.counts
+        })
+
+        d3.selectAll('text').sort(function(a, b) {
+            return b.counts - a.counts
+        })   
+
+        d3.selectAll('circle').transition(t)
+            .attr('cx', function(d, i) {
+                return 110 + i * spaceBetweenWords
+            })
+            .attr('cy', function(d, i) {
+                return y(d.counts)
+            })
+
+        d3.selectAll('text').transition(t)
+            .attr('x', function(d, i) {
+                return 110 + i * spaceBetweenWords
+            })
+            .attr('transform', function(d, i) {
+                return 'rotate(45, ' + (110 + i * spaceBetweenWords) + ', 420)'
+            })
+
     }
 })
