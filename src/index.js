@@ -7,7 +7,7 @@ let spaceBetweenWords = 30,
     numberOfRounds = 10,
     maxRank = 30,
     sizeOfCircle = 5,
-	probabilityIncrease = 370000,
+	probabilityIncrease = 100000,
     dictionaryUrl = 'https://raw.githubusercontent.com/daviortega/zipfsLaw/master/data/words.txt'
 
 let wordSim = require('./wordSim'),
