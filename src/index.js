@@ -3,9 +3,9 @@
 import '../css/style.css'
 let d3 = require('d3')
 
-let spaceBetweenWords = 50,
-    numberOfRounds = 100,
-    maxRank = 20,
+let spaceBetweenWords = 30,
+    numberOfRounds = 10,
+    maxRank = 30,
     sizeOfCircle = 5,
 	probabilityIncrease = 370000,
     dictionaryUrl = 'https://raw.githubusercontent.com/daviortega/zipfsLaw/master/data/words.txt'
@@ -86,14 +86,51 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
         .attr('class', 'controlBar')
         .style('top', '10px')
         .style('width', width + "px")
-        .style('height', "50px")
+        .style('height', "100px")
         .style('background-color', 'grey')
 
+    let form1 = controlBar.append('form')
+        .attr('name', 'numOfRoundsForm')
+        .attr('onSubmit', 'return false')
+        
+    form1.append('input')
+        .attr('type', 'text')
+        .attr('id', 'numberOfRounds')
+        .attr('placeholder', "number of rounds per turn: default = 10")
+        .on('change', function() {
+            numberOfRounds = this.value
+            controlBar.select('#rounds')
+                .text('Number of rounds: ' + numberOfRounds)
+        })
+
+    form1.append('input')
+        .attr('type', 'text')
+        .attr('id', 'probabilityIncrease')
+        .attr('placeholder', "increase prob")
+        .on('change', function() {
+            probabilityIncrease = Math.abs(this.value)
+            Simulation.restart(data, probabilityIncrease)
+            controlBar.select('#probs')
+                .text('Probability increase: ' + probabilityIncrease)
+        })
+
+    controlBar.append('div')
+        .attr('id', 'status')
+        .text('Status: ready')
+    
+    controlBar.append('div')
+        .attr('id', 'rounds')
+        .text('Number of rounds:' + numberOfRounds)
+
+    controlBar.append('div')
+        .attr('id', 'probs')
+        .text('Probability increase: ' + probabilityIncrease)
+
     controlBar.append('button')
-        .text('Start')
+        .text('Play')
         .on('click', function() {
             console.log('start')
-            controlBar.select('.status')
+            controlBar.select('#status')
                 .text('working...')
             let index = Simulation.pickWords(numberOfRounds)
             //console.log(index + ' -- ' + Simulation.tally.words[index[index.length - 1]] + ' -- ' + JSON.stringify(Simulation.tally.scores[index[index.length - 1]]))
@@ -103,10 +140,7 @@ loadData.getDataWeb(dictionaryUrl).then((data) => {
                     //graphs.text(JSON.stringify(Simulation.tally.scores))
         })
 
-    controlBar.append('div')
-        .attr('class', 'status')
-        .text('Status: Ready')
-    
+
     function updatePlot() {
 
         let scores = []

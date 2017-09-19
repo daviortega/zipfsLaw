@@ -1,5 +1,8 @@
 'use strict'
 
+let d3 = require('d3')
+
+
 module.exports =
 
 class WordSim {
@@ -18,6 +21,8 @@ class WordSim {
         let indexes = []
         for (let round = 0; round < numberOfRounds; round++) {
             this.tally.rounds++
+            d3.select('.status')
+                .text('Status: Round d% or d%', round, numberOfRounds)
             let wordIndex = this._pickWord(this.probabilities),
                 word = this.dictionary[wordIndex]
             let tallyWordIndex = this.tally.words.indexOf(word)
@@ -41,6 +46,17 @@ class WordSim {
             return b.counts - a.counts
         })
         return indexes
+    }
+    
+    restart(dictionary, probabilityIncrease) {
+        this.tally = {
+            rounds: 0,
+            scores: [],
+            words: []
+        }
+        this.dictionary = dictionary
+        this.probabilityIncrease = probabilityIncrease
+        this.probabilities = Array(dictionary.length).fill(1)
     }
 
     _pickWord(probabilities) {
